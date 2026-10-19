@@ -54,7 +54,14 @@ export function unlock() {
       master.gain.value = enabled ? 0.8 : 0;
       master.connect(ctx.destination);
     }
-    if (enabled && ctx.state !== 'running') ctx.resume();
+    if (enabled && ctx.state !== 'running') {
+      ctx.resume();
+      // iOS: un buffer silencioso dentro del gesto termina de desbloquear el audio
+      const src = ctx.createBufferSource();
+      src.buffer = ctx.createBuffer(1, 1, 22050);
+      src.connect(ctx.destination);
+      src.start(0);
+    }
     if (enabled) startMusic();
   } catch {}
 }

@@ -28,8 +28,8 @@ soundBtn.addEventListener('click', () => {
   sfx('click');
 });
 // Cualquier primer gesto desbloquea el audio (los navegadores no permiten sonar antes).
-addEventListener('pointerdown', unlock, { once: true });
-addEventListener('keydown', unlock, { once: true });
+// En móviles solo cuentan click / touchend (pointerdown no desbloquea el audio en iOS).
+['click', 'touchend', 'keydown'].forEach((t) => addEventListener(t, unlock, { passive: true }));
 
 /* ---------- Partículas ---------- */
 const COLORS = ['#e8832b', '#f3e6c9', '#c23a2b', '#f6d27f', '#b9553a'];
