@@ -1,0 +1,6 @@
+---
+// Cinta que se desliza (solo CSS). Decorativa.
+const { text, class: cls = '' } = Astro.props;
+const unit = `${text} ✶ `.repeat(4);
+---
+<div class={`marquee ${cls}`} aria-hidden="true"><div class="marquee-track"><span>{unit}</span><span>{unit}</span></div></div>

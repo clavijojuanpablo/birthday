@@ -1,0 +1,236 @@
+---
+import fs from 'node:fs';
+import '../styles/global.css';
+import Landscape from '../components/Landscape.astro';
+import Ransom from '../components/Ransom.astro';
+import Marquee from '../components/Marquee.astro';
+import Deco from '../components/Deco.astro';
+import { characters } from '../components/Characters.ts';
+
+const POSTER = '/larva-birthday-poster.png';
+
+// Lee las dimensiones del PNG en build para evitar saltos de diseño.
+let poster: { width: number; height: number } | null = null;
+try {
+  const buf = fs.readFileSync(new URL('../../public/larva-birthday-poster.png', import.meta.url));
+  poster = { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+} catch {
+  poster = null;
+}
+
+const starPath = 'M12 2.5 L14.4 9.2 L21.5 9.6 L16 14.2 L17.9 21.2 L12 17.2 L6.1 21.2 L8 14.2 L2.5 9.6 L9.6 9.2Z';
+const steps = ['Acceso', 'Jugador', 'Hambre', 'El plan', 'Final'];
+const news =
+  'La asamblea del pueblo acordó por unanimidad que el invierno llegará temprano a las montañas. Vecinos aseguran haber visto luces extrañas sobre el lago durante la madrugada. El mercado de la plaza amplía su horario y ofrece, por tiempo limitado, pan caliente. Se recomienda abrigo. Fuentes cercanas confirman un cumpleaños de carácter reservado. '.repeat(10);
+const sky = [[8, 12], [22, 70], [40, 20], [64, 8], [86, 18], [92, 54], [74, 88], [12, 90], [50, 94]];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#15162b" />
+    <meta name="robots" content="noindex" />
+    <title>Larva Birthday</title>
+    <meta name="description" content="Hay algo preparado para ti…" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5 14.4 9.2 21.5 9.6 16 14.2 17.9 21.2 12 17.2 6.1 21.2 8 14.2 2.5 9.6 9.6 9.2Z' fill='%23e8832b'/%3E%3C/svg%3E" />
+    <link rel="preload" href="/fonts/display.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/pixel.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <button class="back" type="button" id="back" aria-label="Volver al paso anterior" hidden>&larr;</button>
+    <ol class="progress" aria-label="Progreso">
+      {steps.map((name, i) => (
+        <li data-step={i} aria-label={name}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={starPath} /></svg>
+        </li>
+      ))}
+    </ol>
+    <button class="sound" type="button" aria-pressed="true" aria-label="Sonido" id="sound"><span aria-hidden="true">&#9834;</span> <b id="sound-state">ON</b></button>
+
+    <main>
+      <!-- NIVEL 1 · ACCESO -->
+      <section class="stage is-active" id="s1" aria-labelledby="t1" data-stage="0">
+        <div class="rays" aria-hidden="true"></div>
+        <div class="moon" aria-hidden="true"></div>
+        <svg class="constellation" viewBox="0 0 400 300" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+          <path d="M20 60 L90 30 L150 80 L230 40 L300 90 L380 50" />
+          <path d="M60 250 L130 210 L200 260 L290 220 L370 270" />
+          <g><circle cx="20" cy="60" r="3" /><circle cx="90" cy="30" r="4" /><circle cx="150" cy="80" r="3" /><circle cx="230" cy="40" r="4" /><circle cx="300" cy="90" r="3" /><circle cx="380" cy="50" r="3" /><circle cx="60" cy="250" r="3" /><circle cx="130" cy="210" r="4" /><circle cx="200" cy="260" r="3" /><circle cx="290" cy="220" r="4" /><circle cx="370" cy="270" r="3" /></g>
+        </svg>
+        <Deco kind="mushroom" class="d1" style="left:6%;bottom:7rem;--s:2.6rem;--r:-8deg" />
+        <Deco kind="mushroom" class="d1" style="left:15%;bottom:6.4rem;--s:1.6rem;--r:10deg" />
+        <Deco kind="peace" class="d1" style="left:8%;top:30%;--s:2.4rem;--r:-12deg" />
+        <p class="lvl">Nivel 1 · Acceso</p>
+        <div class="wrap">
+          <div class="envelope" id="envelope">
+            <div class="flap" aria-hidden="true"></div>
+            <div class="tape" aria-hidden="true">no abrir</div>
+            <div class="letter">
+              <div class="stamp" aria-hidden="true">P1<br />LARVA</div>
+              <h1 id="t1" class="display" tabindex="-1">Hay algo <Ransom text="preparado" /> para ti…</h1>
+              <p class="sub">Una pequeña aventura, buena compañía y un cumpleaños diferente.</p>
+              <button class="btn" type="button" id="start">Descubrir invitación</button>
+            </div>
+          </div>
+        </div>
+        <Marquee class="m-bottom" text="Acceso restringido ✶ solo pa' Larva ✶ no lo cuentes" />
+      </section>
+
+      <!-- NIVEL 2 · JUGADOR -->
+      <section class="stage" id="s2" aria-labelledby="t2" data-stage="1" hidden>
+        <div class="news" aria-hidden="true">{news}</div>
+        <Deco kind="peace" class="dk" style="right:5%;bottom:12%;--s:3.4rem;--r:10deg" />
+        <Deco kind="mushroom" class="dk" style="left:4%;bottom:8%;--s:2.8rem;--r:-6deg" />
+        <p class="lvl dark">Nivel 2 · Jugador</p>
+        <div class="wrap">
+          <div class="captcha-card">
+            <span class="tape" aria-hidden="true"></span>
+            <span class="sticker" aria-hidden="true">elige<br />jugador</span>
+            <h2 id="t2" class="display" tabindex="-1">Antes de continuar, ayúdanos a encontrar al cumpleañero.</h2>
+            <ul class="chars" id="chars">
+              {characters.map((c, i) => (
+                <li>
+                  <button class="char" type="button" data-id={c.id} aria-label={c.label}>
+                    <span class="tag" aria-hidden="true">P{i + 1}</span>
+                    <Fragment set:html={c.svg} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p class="msg" id="msg" role="status" aria-live="polite">Toca al personaje correcto.</p>
+            <button class="btn" type="button" id="next2" hidden>Continuar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- NIVEL 3 · HAMBRE (Snake) -->
+      <section class="stage" id="s3" aria-labelledby="t3" data-stage="2" hidden>
+        <div class="rays dim" aria-hidden="true"></div>
+        <Deco kind="enso" style="right:6%;top:22%;--s:6rem;--r:0deg" />
+        <Deco kind="mushroom" style="left:5%;bottom:10%;--s:2.4rem;--r:8deg" />
+        <Deco kind="mushroom" style="left:11%;bottom:8%;--s:1.5rem;--r:-10deg" />
+        <p class="lvl">Nivel 3 · Hambre</p>
+        <div class="wrap game">
+          <div class="game-copy">
+            <h2 id="t3" class="display" tabindex="-1">Larva tiene hambre.</h2>
+            <p>Ayúdalo a comerse 7 controles. Flechas, WASD o desliza el dedo.</p>
+          </div>
+          <div class="handheld">
+            <p class="brand" aria-hidden="true">LARVA <i>ADVANCE</i></p>
+            <div class="screen">
+              <canvas id="snake" width="320" height="320" role="img" aria-label="Juego de la serpiente: Larva come controles de videojuegos"></canvas>
+              <p class="hud" aria-live="polite"><span>CONTROLES</span> <b id="score">0/7</b></p>
+              <div class="overlay" id="ov-start">
+                <p>Presiona<br />start</p>
+                <button class="btn" type="button" id="play">Jugar</button>
+              </div>
+              <div class="overlay win" id="ov-win" hidden>
+                <p>Nivel<br />superado</p>
+                <button class="btn" type="button" id="next3">Continuar</button>
+              </div>
+            </div>
+            <div class="pad">
+              <div class="dpad" role="group" aria-label="Controles de dirección">
+                <button type="button" data-dir="up" aria-label="Arriba">&#9650;</button>
+                <button type="button" data-dir="left" aria-label="Izquierda">&#9664;</button>
+                <button type="button" data-dir="right" aria-label="Derecha">&#9654;</button>
+                <button type="button" data-dir="down" aria-label="Abajo">&#9660;</button>
+              </div>
+              <div class="ab" aria-hidden="true"><i>B</i><i>A</i></div>
+            </div>
+          </div>
+          <button class="link" type="button" id="skip">Saltar nivel &rarr;</button>
+        </div>
+      </section>
+
+      <!-- NIVEL 4 · EL PLAN -->
+      <section class="stage" id="s4" aria-labelledby="t4" data-stage="3" hidden>
+        <div class="rays warm" aria-hidden="true"></div>
+        <div class="sky-stars" aria-hidden="true">
+          {sky.map(([x, y], i) => <i style={`left:${x}%;top:${y}%;transform:scale(${0.6 + (i % 3) * 0.5})`} />)}
+        </div>
+        <Deco kind="lotus" style="right:5%;top:20%;--s:5rem;--r:0deg" />
+        <Deco kind="mushroom" style="left:4%;bottom:6rem;--s:2.4rem;--r:-8deg" />
+        <Deco kind="peace" style="right:8%;bottom:6rem;--s:2.6rem;--r:14deg" />
+        <p class="lvl">Nivel 4 · El plan</p>
+        <div class="wrap plan">
+          <figure class="polaroid">
+            <span class="tape" aria-hidden="true"></span>
+            <Landscape />
+            <figcaption>algún lugar, frío</figcaption>
+          </figure>
+          <div class="info">
+            <h2 id="t4" class="display reveal" style="--i:0" tabindex="-1">Mi pa, nos vemos el</h2>
+            <div class="ticket reveal" style="--i:1;--r:-1.5deg">
+              <div class="ticket-main">
+                <span class="dow">Sábado</span>
+                <span class="num">24</span>
+                <span class="mon">de octubre de 2026</span>
+              </div>
+              <div class="ticket-stub" aria-hidden="true"><span>admit one</span><i></i></div>
+            </div>
+            <p class="time reveal" style="--i:2;--r:1.2deg"><small>Pasamos por ti a las</small><b>2:00 PM</b></p>
+            <ul class="notes">
+              <li class="reveal" style="--i:3">
+                <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="6" r="4" fill="currentColor" /><path d="M7 28Q7 11 20 11t13 17Z" fill="currentColor" /><rect x="5" y="27" width="30" height="7" rx="2" fill="currentColor" opacity=".75" /><path d="M10 29v4M15 29v4M20 29v4M25 29v4M30 29v4" stroke="#f5df8a" stroke-width="1.6" /></svg>
+                Ropa para el frío
+              </li>
+              <li class="reveal" style="--i:4">
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M9 12h22q6 0 7 9l1 8q0 4-4 4-3 0-5-3l-2-3H12l-2 3q-2 3-5 3-4 0-4-4l1-8q1-9 7-9Z" fill="currentColor" /><path d="M10 17v6M7 20h6" stroke="#f2b6a0" stroke-width="2.4" stroke-linecap="round" /><circle cx="28" cy="18" r="1.9" fill="#f2b6a0" /><circle cx="32" cy="22" r="1.9" fill="#f2b6a0" /></svg>
+                Lleva un control
+              </li>
+              <li class="reveal" style="--i:5">
+                <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="11" y="14" width="18" height="22" rx="3" fill="currentColor" /><rect x="14" y="4" width="12" height="12" fill="currentColor" opacity=".75" /><rect x="16.5" y="7" width="2.6" height="4.5" fill="#f5df8a" /><rect x="21" y="7" width="2.6" height="4.5" fill="#f5df8a" /><circle cx="20" cy="26" r="3" fill="#f5df8a" /></svg>
+                Memoria
+              </li>
+            </ul>
+            <button class="btn reveal" style="--i:6" type="button" id="next4">Ver mi invitación</button>
+          </div>
+        </div>
+        <Marquee class="m-bottom warm" text="No llegues tarde ✶ 24.10.26 ✶ 2:00 PM ✶ abrigo puesto" />
+      </section>
+
+      <!-- NIVEL FINAL · PÓSTER -->
+      <section class="stage" id="s5" aria-labelledby="t5" data-stage="4" hidden>
+        <div class="wall" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <Deco kind="enso" style="left:6%;bottom:10%;--s:7rem;--r:0deg" />
+        <Deco kind="mushroom" style="right:5%;top:20%;--s:2.6rem;--r:10deg" />
+        <Deco kind="peace" style="left:20%;top:22%;--s:2.2rem;--r:-10deg" />
+        <p class="lvl">Nivel final</p>
+        <div class="wrap final">
+          <div class="final-copy">
+            <h2 id="t5" class="display closing" tabindex="-1">Nos vemos pronto, Larva.</h2>
+            {poster && <button class="btn" type="button" id="save" data-href={POSTER}>Guardar invitación</button>}
+          </div>
+          {poster ? (
+            <div class="poster-frame">
+              <span class="tape l" aria-hidden="true"></span><span class="tape r" aria-hidden="true"></span>
+              <button class="poster-btn" type="button" id="open-viewer" aria-label="Ampliar el póster de la invitación">
+                <img id="poster" data-src={POSTER} width={poster.width} height={poster.height} alt="Póster de la invitación al cumpleaños de Larva" decoding="async" />
+              </button>
+              <span class="zoom-hint" aria-hidden="true">toca para ampliar</span>
+            </div>
+          ) : (
+            <p class="poster-missing">
+              Falta el póster. Coloca tu imagen en <code>public/larva-birthday-poster.png</code> y vuelve a ejecutar la página.
+            </p>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <dialog class="viewer" id="viewer" aria-label="Póster ampliado">
+      <button class="btn viewer-close" type="button" id="close-viewer">Cerrar</button>
+      <div class="viewer-scroll" id="viewer-scroll"><img id="viewer-img" alt="Póster de la invitación al cumpleaños de Larva" /></div>
+      <p class="viewer-tip" aria-hidden="true">toca la imagen para acercar o alejar</p>
+    </dialog>
+
+    <div class="cut a" aria-hidden="true"></div>
+    <div class="cut b" aria-hidden="true"></div>
+
+    <script>
+      import '../scripts/main.js';
+    </script>
+  </body>
+</html>

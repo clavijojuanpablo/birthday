@@ -1,0 +1,5 @@
+---
+// Título estilo "recorte de revista": cada letra con su propio papel.
+const { text } = Astro.props;
+---
+<span class="ransom"><span class="sr">{text}</span><span aria-hidden="true">{[...text].map((ch) => <i>{ch}</i>)}</span></span>
